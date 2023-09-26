@@ -1,6 +1,6 @@
 *.swp
 package-lock.json
-.pytest_cache
+*.pytest_cache
 *.egg-info
 
 # Byte-compiled / optimized / DLL files
@@ -9,9 +9,10 @@ __pycache__/
 *$py.class
 
 # Environments
-.env
-.venv
-.bat
+*.env
+*venv
+*.bat
+*pptx
 env/
 venv/
 ENV/
