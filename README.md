@@ -9,6 +9,8 @@ This repo contains two main things:
 1. An example Terraform configuration which provisions some mock infrastructure to a fictitious cloud provider called "Fake Web Services" using the [`fakewebservices`](https://registry.terraform.io/providers/hashicorp/fakewebservices/latest) provider.
 1. A [script](./scripts/setup.sh) which automatically handles all the setup required to start using Terraform with Terraform Cloud.
 
+![Architecture](static-site.png)
+
 ## Requirements
 
 - Terraform 0.14 or higher
