@@ -1,21 +1,19 @@
 ####---- s3 buckets ----####
 
 # create an empty s3 bucket
-resource "aws_s3_bucket" "meister_lol_s3_bucket" {
-  bucket = "tf_static_site.meister.lol" #bucket name
+resource "aws_s3_bucket" "tf1000_webcontent" {
+  bucket = "tf1000.meister.lol" #bucket name
 
   tags = {
-    Name        = "tf_static_site.meister.lol"
-    Environment = "Prod"
+    Project = "tf1000"
   }
 }
 
-resource "aws_s3_bucket" "artifact_bucket_static_site_pipeline" {
-  bucket = "artifact_tf_static_site.meister.lol" #bucket name
+resource "aws_s3_bucket" "tf1000_codepipelineartifact" {
+  bucket = "codepipelineartifact.tf1000.meister.lol" #bucket name
 
   tags = {
-    Name        = "artifact_tf_static_site.meister.lol"
-    Environment = "Prod"
+    Project = "tf1000"
   }
 }
 
@@ -23,14 +21,14 @@ resource "aws_s3_bucket" "artifact_bucket_static_site_pipeline" {
 # policy document for the tf_static_site bucket to allow getobject and listbucket from cloudfront
 # these settings enable webpages display and 404 error from couldfront
 
-data "aws_iam_policy_document" "allow_readget_access_cloudfront_to_s3" {
+data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
   statement {
     sid    = "AllowCloudFrontServicePrincipal"
     effect = "Allow"
 
     resources = [
-      "arn:aws:s3:::tf-static-site.meister.lol/*",
-      "arn:aws:s3:::tf-static-site.meister.lol",
+      "arn:aws:s3:::tf1000.meister.lol/*",
+      "arn:aws:s3:::tf1000.meister.lol",
     ]
 
     actions = [
@@ -41,7 +39,7 @@ data "aws_iam_policy_document" "allow_readget_access_cloudfront_to_s3" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = ["arn:aws:cloudfront::671231939531:distribution/E33JRMUO5XD2GS"]
+      values   = [aws_cloudfront_distribution.tf1000_distribution.arn] # our cloudfront resource arn
     }
 
     principals {
@@ -49,28 +47,38 @@ data "aws_iam_policy_document" "allow_readget_access_cloudfront_to_s3" {
       identifiers = ["cloudfront.amazonaws.com"]
     }
   }
+
 }
 
 # attaching the policy document to the tf_static_site bucket
 
-resource "aws_s3_bucket_policy" "allow_readget_access_cloudfront_to_s3" {
-  bucket = aws_s3_bucket.meister_lol_s3_bucket.id
-  policy = data.aws_iam_policy_document.allow_readget_access_cloudfront_to_s3.json
+resource "aws_s3_bucket_policy" "tf1000_allow_readget_access_cloudfront_to_s3" {
+  bucket = aws_s3_bucket.tf1000_webcontent.id
+  policy = data.aws_iam_policy_document.tf1000_allow_readget_access_cloudfront_to_s3.json
+
 }
 
 # add static website hosting settings to the tf_static_site bucket
 
-resource "aws_s3_bucket_website_configuration" "meister_lol_s3_bucket_webconfig" {
-  bucket = aws_s3_bucket.meister_lol_s3_bucket.id
+resource "aws_s3_bucket_website_configuration" "tf1000_webcontent" {
+  bucket = aws_s3_bucket.tf1000_webcontent.id
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
 }
 
 
 ####---- roles ----####
 ####---- role1 ----####
 
-resource "aws_iam_policy" "example_policy" {
-  name        = "AWSCodePipelineServiceRole-eu-central-1-tf-static-site-GitHub-to-S3"
-  description = "Policy used in trust relationship with CodePipeline"
+resource "aws_iam_policy" "tf1000_pipeline_policy" {
+  name        = "tf1000_pipeline_policy"
+  description = "Policy used in trust relationship with CodePipeline github to s3"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -80,7 +88,7 @@ resource "aws_iam_policy" "example_policy" {
           "iam:PassRole",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
         Condition = {
           StringEqualsIfExists = {
             "iam:PassedToService" = [
@@ -102,7 +110,7 @@ resource "aws_iam_policy" "example_policy" {
           "codecommit:UploadArchive",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -114,14 +122,14 @@ resource "aws_iam_policy" "example_policy" {
           "codedeploy:RegisterApplicationRevision",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
           "codestar-connections:UseConnection",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -138,7 +146,7 @@ resource "aws_iam_policy" "example_policy" {
           "ecs:*",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -146,7 +154,7 @@ resource "aws_iam_policy" "example_policy" {
           "lambda:ListFunctions",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -160,7 +168,7 @@ resource "aws_iam_policy" "example_policy" {
           "opsworks:UpdateStack",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -176,7 +184,7 @@ resource "aws_iam_policy" "example_policy" {
           "cloudformation:ValidateTemplate",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
         Action = [
@@ -186,11 +194,11 @@ resource "aws_iam_policy" "example_policy" {
           "codebuild:StartBuildBatch",
         ],
         Resource = "*",
-        Effect = "Allow",
+        Effect   = "Allow",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "devicefarm:ListProjects",
           "devicefarm:ListDevicePools",
           "devicefarm:GetRun",
@@ -201,8 +209,8 @@ resource "aws_iam_policy" "example_policy" {
         Resource = "*",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "servicecatalog:ListProvisioningArtifacts",
           "servicecatalog:CreateProvisioningArtifact",
           "servicecatalog:DescribeProvisioningArtifact",
@@ -212,22 +220,22 @@ resource "aws_iam_policy" "example_policy" {
         Resource = "*",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "cloudformation:ValidateTemplate",
         ],
         Resource = "*",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "ecr:DescribeImages",
         ],
         Resource = "*",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "states:DescribeExecution",
           "states:DescribeStateMachine",
           "states:StartExecution",
@@ -235,8 +243,8 @@ resource "aws_iam_policy" "example_policy" {
         Resource = "*",
       },
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "appconfig:StartDeployment",
           "appconfig:StopDeployment",
           "appconfig:GetDeployment",
@@ -245,16 +253,13 @@ resource "aws_iam_policy" "example_policy" {
       },
     ],
   })
+  tags = {
+    Project = "tf1000"
+  }
 }
 
-resource "aws_iam_policy_attachment" "example_attachment" {
-  name       = "example-attachment"
-  policy_arn = aws_iam_policy.example_policy.arn
-  roles      = [aws_iam_role.example_role.name]
-}
-
-resource "aws_iam_role" "example_role" {
-  name = "CodePipelineServiceRole-tf-static-site-GitHub-to-S3"
+resource "aws_iam_role" "tf1000_pipeline_role" {
+  name = "tf1000_pipeline_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -268,5 +273,288 @@ resource "aws_iam_role" "example_role" {
       },
     ],
   })
+  tags = {
+    Project = "tf1000"
+  }
 }
 
+resource "aws_iam_policy_attachment" "tf1000_pipeline_attachment" {
+  name       = "tf1000_pipeline_attachment"
+  policy_arn = aws_iam_policy.tf1000_pipeline_policy.arn
+  roles      = [aws_iam_role.tf1000_pipeline_role.name]
+
+}
+
+
+####---- role2 ----####
+
+resource "aws_iam_policy" "tf1000_lambda1_policy" {
+  name        = "tf1000_lambda1_policy"
+  description = "Policy for AWS Lambda so it could invoke cloudfront invalidation and also report to code pipeline"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        Resource = "arn:aws:logs:*:*:*",
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "cloudfront:CreateInvalidation",
+          "codepipeline:PutJobFailureResult",
+          "codepipeline:PutJobSuccessResult",
+        ],
+        Resource = ["*"],
+      },
+    ],
+  })
+  tags = {
+    Project = "tf1000"
+  }
+}
+
+resource "aws_iam_role" "tf1000_lambda1_role" {
+  name = "tf1000_lambda1_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com",
+        },
+        Action = "sts:AssumeRole",
+      },
+    ],
+  })
+  tags = {
+    Project = "tf1000"
+  }
+}
+
+resource "aws_iam_policy_attachment" "tf1000_lambda1_attachment" {
+  name       = "example-attachment"
+  policy_arn = aws_iam_policy.tf1000_lambda1_policy.arn
+  roles      = [aws_iam_role.tf1000_lambda1_role.name]
+}
+
+####---- GitHub codestar connections ----####
+
+resource "aws_codestarconnections_connection" "OmerMeister_GitHub" {
+  name          = "OmerMeister_GitHub"
+  provider_type = "GitHub"
+  tags = {
+    Project = "tf1000"
+  }
+}
+# then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=eu-central-1 to manually approve the connection
+
+
+####---- lambda1 function ----####
+
+resource "aws_lambda_function" "tf1000_lambda1" {
+  function_name = "tf1000_lambda1"
+  handler       = "tf1000_lambda1.lambda_handler"
+  runtime       = "python3.11"
+  role          = aws_iam_role.tf1000_lambda1_role.arn
+  timeout       = 6
+  memory_size   = 128
+  filename      = data.archive_file.tf1000_python_code.output_path
+  lifecycle {
+    ignore_changes = [filename]
+  }
+  tracing_config {
+    mode = "PassThrough"
+  }
+  environment {
+    variables = {
+      DISTRIBUTION = aws_cloudfront_distribution.tf1000_distribution.id
+    }
+  }
+  tags = {
+    Project = "tf1000"
+  }
+}
+
+data "archive_file" "tf1000_python_code" {
+  type        = "zip"
+  output_path = "${path.module}/tf1000_lambda1.zip"
+  source {
+    content  = file("${path.module}/tf1000_lambda1.py")
+    filename = "tf1000_lambda1.py"
+  }
+}
+
+####---- cloudfront origin access control ----####
+
+
+resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
+  name                              = "tf1000.meister.lol.s3.eu-central-1.amazonaws.com"
+  description                       = "OAC_sign_request"
+  signing_protocol                  = "sigv4"
+  signing_behavior                  = "always"
+  origin_access_control_origin_type = "s3"
+}
+
+####---- cloudfront distribution ----####
+
+
+resource "aws_cloudfront_distribution" "tf1000_distribution" {
+  origin {
+    domain_name              = "tf1000.meister.lol.s3.eu-central-1.amazonaws.com"
+    origin_id                = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
+    origin_access_control_id = aws_cloudfront_origin_access_control.tf1000_oac.id
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  http_version        = "http2"
+  default_root_object = "index.html"
+  price_class         = "PriceClass_100"
+
+  aliases = ["meister.lol"]
+
+  default_cache_behavior {
+    target_origin_id       = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+
+    cached_methods = ["HEAD", "GET"]
+
+    compress = true
+
+    min_ttl          = 0
+    default_ttl      = 86400
+    max_ttl          = 31536000
+    smooth_streaming = false
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  custom_error_response {
+    error_code            = 404
+    response_page_path    = "/error.html"
+    response_code         = "404"
+    error_caching_min_ttl = 1
+  }
+
+  viewer_certificate {
+    acm_certificate_arn      = var.meister_lol_certificate_us_east_1
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
+  }
+  tags = {
+    Project = "tf1000"
+  }
+}
+
+
+
+
+####---- CodePipeline ----####
+
+
+resource "aws_codepipeline" "tf1000_codepipeline" {
+  name     = "tf1000_codepipeline"
+  role_arn = aws_iam_role.tf1000_pipeline_role.arn
+
+  artifact_store {
+    location = aws_s3_bucket.tf1000_codepipelineartifact.bucket
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
+      input_artifacts  = []
+      output_artifacts = ["SourceArtifact"]
+      configuration = {
+        BranchName           = "main"
+        ConnectionArn        = aws_codestarconnections_connection.OmerMeister_GitHub.arn
+        FullRepositoryId     = "OmerMeister/tf-static-site-webcontent"
+        OutputArtifactFormat = "CODE_ZIP"
+      }
+
+      run_order = 1
+      region    = "eu-central-1"
+      namespace = "SourceVariables"
+    }
+  }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name             = "Deploy"
+      category         = "Deploy"
+      owner            = "AWS"
+      provider         = "S3"
+      version          = "1"
+      input_artifacts  = ["SourceArtifact"]
+      output_artifacts = []
+
+
+      configuration = {
+        BucketName = aws_s3_bucket.tf1000_webcontent.bucket
+        Extract    = "true"
+      }
+
+      run_order = 1
+      region    = "eu-central-1"
+      namespace = "DeployVariables"
+    }
+  }
+
+  stage {
+    name = "InvalidateCloudFront"
+
+    action {
+      name             = "InvalidateCloudFrontLambda"
+      category         = "Invoke"
+      owner            = "AWS"
+      provider         = "Lambda"
+      version          = "1"
+      input_artifacts  = []
+      output_artifacts = []
+
+
+      configuration = {
+        FunctionName = aws_lambda_function.tf1000_lambda1.function_name
+      }
+
+      run_order = 1
+      region    = "eu-central-1"
+    }
+  }
+
+  tags = {
+    Project = "tf1000"
+  }
+}

@@ -1,5 +1,6 @@
 import boto3
 import json
+import os
 
 def lambda_handler(event, context):
     # Initialize a CodePipeline client
@@ -9,7 +10,7 @@ def lambda_handler(event, context):
         cloudfront_client = boto3.client('cloudfront')
 
         # Replace 'YourDistributionID' with your actual CloudFront distribution ID
-        distribution_id = 'E33JRMUO5XD2GS'
+        distribution_id = os.environ['DISTRIBUTION']
 
         # Create an invalidation request for the entire distribution
         invalidation_response = cloudfront_client.create_invalidation(
@@ -26,8 +27,8 @@ def lambda_handler(event, context):
         # Report success to CodePipeline
         codepipeline.put_job_success_result(
             jobId=event['CodePipeline.job']['id']
-            print("success")
         )
+        print("success")
 
     except Exception as e:
         # Report failure to CodePipeline
@@ -36,9 +37,9 @@ def lambda_handler(event, context):
             failureDetails={
                 'type': 'JobFailed',
                 'message': str(e)
-                print("fail")
             }
         )
+        print("fail")
 
     return {
         'statusCode': 200,

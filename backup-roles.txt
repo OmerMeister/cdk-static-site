@@ -238,9 +238,9 @@
 
         {
             "Path": "/service-role/",
-            "RoleName": "test123-role-p0qrdbtn",
+            "RoleName": "tf1000_lambda1_role",
             "RoleId": "AROAZYSEKSPFYURGDP5AW",
-            "Arn": "arn:aws:iam::671231939531:role/service-role/test123-role-p0qrdbtn",
+            "Arn": "arn:aws:iam::671231939531:role/service-role/tf1000_lambda1_role",
             "CreateDate": "2023-09-30T11:31:31+00:00",
             "AssumeRolePolicyDocument": {
                 "Version": "2012-10-17",
@@ -275,7 +275,7 @@
         "PolicyId": "ANPAZYSEKSPF7TOBINHEN",
         "Arn": "arn:aws:iam::671231939531:policy/service-role/AWSLambdaBasicExecutionRole-db5a1376-7c92-4db6-9106-a73dc6e33134",
         "Path": "/service-role/",
-        "DefaultVersionId": "v3",
+        "DefaultVersionId": "v1",
         "AttachmentCount": 1,
         "PermissionsBoundaryUsageCount": 0,
         "IsAttachable": true,
@@ -314,7 +314,7 @@
                 }
             ]
         },
-        "VersionId": "v3",
+        "VersionId": "v1",
         "IsDefaultVersion": true,
         "CreateDate": "2023-09-30T12:14:59+00:00"
     }
