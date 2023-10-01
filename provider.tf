@@ -22,3 +22,7 @@ terraform {
 provider "aws" {
   region = "eu-central-1"
 }
+
+provider "github" {
+  token = var.WEBCONTENT_REPO_ACCESS_KEY # Replace with your GitHub access token
+}
