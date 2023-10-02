@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.tf1000_distribution.arn] # our cloudfront resource arn
+      values   = [aws_cloudfront_distribution.tf1000_cf_distribution.arn] # our cloudfront resource arn
     }
 
     principals {
@@ -290,7 +290,7 @@ resource "aws_iam_policy_attachment" "tf1000_pipeline_attachment" {
 
 resource "aws_iam_policy" "tf1000_lambda1_policy" {
   name        = "tf1000_lambda1_policy"
-  description = "Policy for AWS Lambda so it could invoke cloudfront invalidation and also report to code pipeline"
+  description = "Policy for Lambda function to interact with CodePipeline, CloudFront, and CloudWatch Logs"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -298,42 +298,45 @@ resource "aws_iam_policy" "tf1000_lambda1_policy" {
       {
         Effect = "Allow",
         Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents",
+          "codepipeline:*"
         ],
-        Resource = "arn:aws:logs:*:*:*",
+        Resource = "*"
       },
       {
         Effect = "Allow",
         Action = [
           "cloudfront:CreateInvalidation",
-          "codepipeline:PutJobFailureResult",
-          "codepipeline:PutJobSuccessResult",
+          "cloudfront:GetInvalidation",
+          "cloudfront:ListInvalidations"
         ],
-        Resource = ["*"],
+        Resource = "${aws_cloudfront_distribution.tf1000_cf_distribution.arn}"
       },
-    ],
+      {
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
   })
-  tags = {
-    Project = "tf1000"
-  }
 }
 
 resource "aws_iam_role" "tf1000_lambda1_role" {
   name = "tf1000_lambda1_role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
+        Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          Service = "lambda.amazonaws.com",
-        },
-        Action = "sts:AssumeRole",
-      },
-    ],
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
   })
   tags = {
     Project = "tf1000"
@@ -376,7 +379,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   }
   environment {
     variables = {
-      DISTRIBUTION = aws_cloudfront_distribution.tf1000_distribution.id
+      DISTRIBUTION = aws_cloudfront_distribution.tf1000_cf_distribution.id
     }
   }
   tags = {
@@ -407,7 +410,7 @@ resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
 ####---- cloudfront distribution ----####
 
 
-resource "aws_cloudfront_distribution" "tf1000_distribution" {
+resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
   origin {
     domain_name              = "tf1000.meister.lol.s3.eu-central-1.amazonaws.com"
     origin_id                = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
@@ -420,7 +423,7 @@ resource "aws_cloudfront_distribution" "tf1000_distribution" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
 
-  aliases = ["meister.lol"]
+  aliases = ["tf1000.meister.lol"]
 
   default_cache_behavior {
     target_origin_id       = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
