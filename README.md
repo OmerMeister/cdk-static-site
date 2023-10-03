@@ -8,7 +8,7 @@ The static files for the website can be found [On this repo](https://github.com/
 
 ## Resources composition
 
-S3 Buckets:\
+S3 Buckets:<br />
 **tf1000_webcontent** - site static content is copied to here from github
 **tf1000_codepipelineartifact** - stores the codepipeline resource artifacts'
 
