@@ -8,17 +8,17 @@ The static files for the website can be found [On this repo](https://github.com/
 
 ## Resources composition
 
-S3 Buckets:
+S3 Buckets:\
 **tf1000_webcontent** - site static content is copied to here from github
 **tf1000_codepipelineartifact** - stores the codepipeline resource artifacts'
 
-S3 bucket policy:
+S3 bucket policy:\
 **tf1000_allow_readget_access_cloudfront_to_s3** - attaches the policy with the same name to the "tf1000_webcontent" bucket
 
-S3 bucket website configuration:
+S3 bucket website configuration:\
 **tf1000_webcontent** - enables default static website cofigurations for the bucket with the same name.
 
-Policies:
+Policies:\
 **tf1000_allow_readget_access_cloudfront_to_s3** - uses "aws_iam_policy_document" which is optional resource type for not using json for aws policies in terraform - allows access from cloudfront to the s3 for invalidations, and files check for 404 errors.
 **tf1000_lambda1_policy** - uses jsonencode - allows the lambda to access codepipeline to report success/faliure. allows access to cloudfront to create invalidations
 **tf1000_pipeline_policy** - uses jsonencode - allows access to many aws resources for the pipeline to use. I got the policy as is from aws.
