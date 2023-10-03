@@ -4,7 +4,7 @@ This project demonstrates provisioning of a aws static site using terraform.
 This site is simple, but yet, more complicated than the ususal S3 bucket static site.
 The site extra featurs are: better access letancy worldwide due to using CloudFront CDN,
 use a ssl certificate to encrypt the connection to the site, and custom error pages
-The static files for the website can be found [On this repo](https://github.com/OmerMeister/tf1000).
+The static files for the website can be found [On this repo](https://github.com/OmerMeister/tf1000-webcontent).
 
 ## Diagram
 ![Resources diagram](auxiliary/graph.jpg)
