@@ -386,7 +386,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
 }
 
 # specify lambda source file location. leave zip location as is
-data "archive_file" "tf1000_python_code" {
+data "archive_file" "tf1000_python_codeREMOVE" {
   type        = "zip"
   output_path = "${path.module}/tf1000_lambda1.zip"
   source {
