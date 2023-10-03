@@ -368,7 +368,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   role          = aws_iam_role.tf1000_lambda1_role.arn
   timeout       = 6
   memory_size   = 128
-  filename      = data.archive_file.tf1000_python_code2.output_path
+  filename      = data.archive_file.tf1000_python_code.output_path
   lifecycle {
     ignore_changes = [filename]
   }
