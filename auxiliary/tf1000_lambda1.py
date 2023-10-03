@@ -19,13 +19,14 @@ def lambda_handler(event, context):
                     'Quantity': 1,
                     'Items': ['/*']  # Invalidate all objects
                 },
-                'CallerReference': str(time.time())
+                'CallerReference': str(time.time()) # aws require callerReference to be unique. I used a simple timestamp
             }
         )
         # Report success to CodePipeline
         codepipeline.put_job_success_result(
             jobId=event['CodePipeline.job']['id']
         )
+        # print the invalidation response for debug
         print(invalidation_response)
         print("success")
 
@@ -38,6 +39,7 @@ def lambda_handler(event, context):
                 'message': str(e)
             }
         )
+        # print error for debug
         print(str(e))
     return {
         'statusCode': 200,

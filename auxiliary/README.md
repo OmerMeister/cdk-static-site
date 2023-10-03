@@ -1,6 +1,10 @@
-# TFC Getting Started
+# Static site Deployment using terraform. project-tf1000
 
-In this repo, you'll find a quick and easy path to get started using [Terraform Cloud](https://app.terraform.io/) with the [Terraform CLI](https://github.com/hashicorp/terraform).
+This project demonstrates provisioning of a aws static site using terraform.
+This site is simple, but yet, more complicated than the ususal S3 bucket static site.
+The site extra featurs are: better access worldwide due to using CloudFront CDN,
+use a ssl certificate to encrypt the connection to the site, and custom error pages
+The static files for the website can be found [On this repo](https://github.com/OmerMeister/tf1000).
 
 ## What's here?
 
@@ -9,7 +13,7 @@ This repo contains two main things:
 1. An example Terraform configuration which provisions some mock infrastructure to a fictitious cloud provider called "Fake Web Services" using the [`fakewebservices`](https://registry.terraform.io/providers/hashicorp/fakewebservices/latest) provider.
 1. A [script](./scripts/setup.sh) which automatically handles all the setup required to start using Terraform with Terraform Cloud.
 
-![graph.jpg](static-site.png)
+![Arcitecture](auxiliary/graph.jpg)
 
 ## Requirements
 

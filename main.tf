@@ -385,13 +385,12 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   }
 }
 
-# lambda source file should be called "tf1000_lambda1.py" 
-# and be stored in the same folder as the tf script for this config
+# specify lambda source file location. leave zip location as is
 data "archive_file" "tf1000_python_code" {
   type        = "zip"
   output_path = "${path.module}/tf1000_lambda1.zip"
   source {
-    content  = file("${path.module}/tf1000_lambda1.py")
+    content  = file("${path.module}/auxiliary/tf1000_lambda1.py")
     filename = "tf1000_lambda1.py"
   }
 }
