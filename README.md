@@ -6,6 +6,9 @@ The site extra featurs are: better access letancy worldwide due to using CloudFr
 use a ssl certificate to encrypt the connection to the site, and custom error pages
 The static files for the website can be found [On this repo](https://github.com/OmerMeister/tf1000).
 
+## Diagram
+![Resources diagram](auxiliary/graph.jpg)
+
 ## Resources composition
 
 S3 Buckets:<br />
