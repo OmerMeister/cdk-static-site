@@ -1,16 +1,17 @@
 ####---- s3 buckets ----####
 
-# create an empty s3 bucket
+# bucket for the website files
 resource "aws_s3_bucket" "tf1000_webcontent" {
-  bucket = "tf1000.meister.lol" #bucket name
+  bucket = var.project_domain_name #bucket name
 
   tags = {
     Project = "tf1000"
   }
 }
 
+# bucket for the codepipeline artifact files
 resource "aws_s3_bucket" "tf1000_codepipelineartifact" {
-  bucket = "codepipelineartifact.tf1000.meister.lol" #bucket name
+  bucket = "codepipelineartifact.${var.project_domain_name}" #bucket name
 
   tags = {
     Project = "tf1000"
@@ -19,7 +20,7 @@ resource "aws_s3_bucket" "tf1000_codepipelineartifact" {
 
 
 # policy document for the tf_static_site bucket to allow getobject and listbucket from cloudfront
-# these settings enable webpages display and 404 error from couldfront
+# it enables cloudfront to serve webpages fromt the bucket and also to serve custom error pages
 
 data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
   statement {
@@ -27,8 +28,8 @@ data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
     effect = "Allow"
 
     resources = [
-      "arn:aws:s3:::tf1000.meister.lol/*",
-      "arn:aws:s3:::tf1000.meister.lol",
+      "arn:aws:s3:::${var.project_domain_name}/*",
+      "arn:aws:s3:::${var.project_domain_name}",
     ]
 
     actions = [
@@ -66,15 +67,12 @@ resource "aws_s3_bucket_website_configuration" "tf1000_webcontent" {
   index_document {
     suffix = "index.html"
   }
-
-  error_document {
-    key = "error.html"
-  }
 }
 
 
-####---- roles ----####
-####---- role1 ----####
+####---- roles and policies ----####
+
+####---- rold and policy 1 ----####
 
 resource "aws_iam_policy" "tf1000_pipeline_policy" {
   name        = "tf1000_pipeline_policy"
@@ -286,7 +284,7 @@ resource "aws_iam_policy_attachment" "tf1000_pipeline_attachment" {
 }
 
 
-####---- role2 ----####
+####---- rold and policy 2 ----####
 
 resource "aws_iam_policy" "tf1000_lambda1_policy" {
   name        = "tf1000_lambda1_policy"
@@ -358,7 +356,7 @@ resource "aws_codestarconnections_connection" "OmerMeister_GitHub" {
     Project = "tf1000"
   }
 }
-# then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=eu-central-1 to manually approve the connection
+# then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=eu-central-1 to one time manually approve the connection
 
 
 ####---- lambda1 function ----####
@@ -387,6 +385,8 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   }
 }
 
+# lambda source file should be called "tf1000_lambda1.py" 
+# and be stored in the same folder as the tf script for this config
 data "archive_file" "tf1000_python_code" {
   type        = "zip"
   output_path = "${path.module}/tf1000_lambda1.zip"
@@ -398,9 +398,8 @@ data "archive_file" "tf1000_python_code" {
 
 ####---- cloudfront origin access control ----####
 
-
 resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
-  name                              = "tf1000.meister.lol.s3.eu-central-1.amazonaws.com"
+  name                              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
   description                       = "OAC_sign_request"
   signing_protocol                  = "sigv4"
   signing_behavior                  = "always"
@@ -409,11 +408,10 @@ resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
 
 ####---- cloudfront distribution ----####
 
-
 resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
   origin {
-    domain_name              = "tf1000.meister.lol.s3.eu-central-1.amazonaws.com"
-    origin_id                = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
+    domain_name              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
+    origin_id                = "${var.project_domain_name}.s3-website.eu-central-1.amazonaws.com"
     origin_access_control_id = aws_cloudfront_origin_access_control.tf1000_oac.id
   }
 
@@ -423,10 +421,10 @@ resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
 
-  aliases = ["tf1000.meister.lol"]
+  aliases = ["${var.project_domain_name}"]
 
   default_cache_behavior {
-    target_origin_id       = "tf1000.meister.lol.s3-website.eu-central-1.amazonaws.com"
+    target_origin_id       = "${var.project_domain_name}.s3-website.eu-central-1.amazonaws.com"
     viewer_protocol_policy = "redirect-to-https"
 
     allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
@@ -472,11 +470,7 @@ resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
   }
 }
 
-
-
-
 ####---- CodePipeline ----####
-
 
 resource "aws_codepipeline" "tf1000_codepipeline" {
   name     = "tf1000_codepipeline"
@@ -491,7 +485,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
     name = "Source"
 
     action {
-      name             = "Source"
+      name             = "Update_from_GitHub"
       category         = "Source"
       owner            = "AWS"
       provider         = "CodeStarSourceConnection"
@@ -501,13 +495,12 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
       configuration = {
         BranchName           = "main"
         ConnectionArn        = aws_codestarconnections_connection.OmerMeister_GitHub.arn
-        FullRepositoryId     = "OmerMeister/tf-static-site-webcontent"
+        FullRepositoryId     = "OmerMeister/tf1000-webcontent"
         OutputArtifactFormat = "CODE_ZIP"
       }
 
       run_order = 1
       region    = "eu-central-1"
-      namespace = "SourceVariables"
     }
   }
 
@@ -515,7 +508,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
     name = "Deploy"
 
     action {
-      name             = "Deploy"
+      name             = "Deploy_to_S3"
       category         = "Deploy"
       owner            = "AWS"
       provider         = "S3"
@@ -539,7 +532,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
     name = "InvalidateCloudFront"
 
     action {
-      name             = "InvalidateCloudFrontLambda"
+      name             = "InvalidateCloudFront_Lambda"
       category         = "Invoke"
       owner            = "AWS"
       provider         = "Lambda"
