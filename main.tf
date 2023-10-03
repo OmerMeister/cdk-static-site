@@ -368,7 +368,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   role          = aws_iam_role.tf1000_lambda1_role.arn
   timeout       = 6
   memory_size   = 128
-  filename      = didi.output_path #data.archive_file.tf1000_python_code2.output_path
+  filename      = data.archive_file.tf1000_python_code2.output_path
   lifecycle {
     ignore_changes = [filename]
   }
@@ -386,7 +386,14 @@ resource "aws_lambda_function" "tf1000_lambda1" {
 }
 
 # specify lambda source file location. leave zip location as is
-
+data "archive_file" "tf1000_python_code" {
+  type        = "zip"
+  output_path = "${path.module}/tf1000_lambda1.zip"
+  source {
+    content  = file("${path.module}/auxiliary/tf1000_lambda1.py")
+    filename = "tf1000_lambda1.py"
+  }
+}
 
 ####---- cloudfront origin access control ----####
 
