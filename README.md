@@ -56,10 +56,10 @@ CodePiplines:<br />
 On the variables file there are:<br />
 **meister_lol_certificate_us_east_1** - my global certificate for various projects. cloudfront demands a certificate from 'us-east-1' region.<br />
 **project_domain_name** - unifies 10 appearences of the project domain in the main.tf file<br />
-On the Terraform cloud there are:<br />
+<br />On the Terraform cloud there are:<br />
 **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** - to access the aws account.<br />
 **AWS_DEFAULT_REGION** - to set region, i worked on 'eu-central-1' when possible.<br />
-Tags:<br />
+<br />Tags:<br />
 **Project = tf1000** - 'tf' for 'terraform' and '1000' for the first project in a four digit convention. This tag is attached whenever is possible. It groups all resources which are belong solely to this project
 
 
