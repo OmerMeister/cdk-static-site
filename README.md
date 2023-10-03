@@ -21,7 +21,7 @@ S3 bucket website configuration:<br />
 Policies:<br />
 **tf1000_allow_readget_access_cloudfront_to_s3** - uses "aws_iam_policy_document" which is optional resource type for not using json for aws policies in terraform - allows access from cloudfront to the s3 for invalidations, and files check for 404 errors.<br />
 **tf1000_lambda1_policy** - uses jsonencode - allows the lambda to access codepipeline to report success/faliure. allows access to cloudfront to create invalidations<br />
-**tf1000_pipeline_policy** - uses jsonencode - allows access to many aws resources for the pipeline to use. I got the policy as is from aws.
+**tf1000_pipeline_policy** - uses jsonencode - allows access to many aws resources for the pipeline to use. I got the policy as is from aws.<br />
 
 Roles:<br />
 **tf1000_lambda1_role** - uses jsonencode - doesn't any special settings.<br />
