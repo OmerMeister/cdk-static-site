@@ -52,6 +52,17 @@ CodeStar Connections:<br />
 CodePiplines:<br />
 **tf1000_codepipeline** - The pipeline has three steps: 1 - gets triggred by a commit on a specific github repository, then download the commit content to a temporary zip. 2 - extracts the zip contents to the S3 bucket. 3 - calls the lambda function to create a distribution invalidation. the invalidation makes cloudfront update its site content.
 
+## Variables and Tages
+On the variables file there are:<br />
+**meister_lol_certificate_us_east_1** - my global certificate for various projects. cloudfront demands a certificate from 'us-east-1' region.<br />
+**project_domain_name** - unifies 10 appearences of the project domain in the main.tf file<br />
+On the Terraform cloud there are:<br />
+**AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** - to access the aws account.<br />
+**AWS_DEFAULT_REGION** - to set region, i worked on 'eu-central-1' when possible.<br />
+Tags:<br />
+**Project = tf1000** - 'tf' for 'terraform' and '1000' for the first project in a four digit convention. This tag is attached whenever is possible. groups all resources which are belong solely to this project
+
+
 ## Disadvantages and outside resources
 
 - Files which get delete from the github repository doesn't get deleted on the S3 bucket and therefore also not from the cloudfront distribution, possible fix could be achived using aws' vcs "CodeCommit" instead of github.
