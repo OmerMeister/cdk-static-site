@@ -368,7 +368,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   role          = aws_iam_role.tf1000_lambda1_role.arn
   timeout       = 6
   memory_size   = 128
-  filename      = data.archive_file.tf1000_python_code.output_path
+  filename      = data.archive_file.tf1000_python_code2.output_path
   lifecycle {
     ignore_changes = [filename]
   }
@@ -386,7 +386,7 @@ resource "aws_lambda_function" "tf1000_lambda1" {
 }
 
 # specify lambda source file location. leave zip location as is
-data "archive_file" "tf1000_python_codeREMOVE" {
+data "archive_file" "tf1000_python_code2" {
   type        = "zip"
   output_path = "${path.module}/tf1000_lambda1.zip"
   source {
