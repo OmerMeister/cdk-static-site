@@ -1,20 +1,20 @@
 ####---- s3 buckets ----####
 
 # bucket for the website files
-resource "aws_s3_bucket" "tf1000_webcontent" {
+resource "aws_s3_bucket" "dp1000_webcontent" {
   bucket = var.project_domain_name #bucket name
 
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
 # bucket for the codepipeline artifact files
-resource "aws_s3_bucket" "tf1000_codepipelineartifact" {
+resource "aws_s3_bucket" "dp1000_codepipelineartifact" {
   bucket = "codepipelineartifact.${var.project_domain_name}" #bucket name
 
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
@@ -22,7 +22,7 @@ resource "aws_s3_bucket" "tf1000_codepipelineartifact" {
 # policy document for the tf_static_site bucket to allow getobject and listbucket from cloudfront
 # it enables cloudfront to serve webpages fromt the bucket and also to serve custom error pages
 
-data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
+data "aws_iam_policy_document" "dp1000_allow_readget_access_cloudfront_to_s3" {
   statement {
     sid    = "AllowCloudFrontServicePrincipal"
     effect = "Allow"
@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceArn"
-      values   = [aws_cloudfront_distribution.tf1000_cf_distribution.arn] # our cloudfront resource arn
+      values   = [aws_cloudfront_distribution.dp1000_cf_distribution.arn] # our cloudfront resource arn
     }
 
     principals {
@@ -53,16 +53,16 @@ data "aws_iam_policy_document" "tf1000_allow_readget_access_cloudfront_to_s3" {
 
 # attaching the policy document to the tf_static_site bucket
 
-resource "aws_s3_bucket_policy" "tf1000_allow_readget_access_cloudfront_to_s3" {
-  bucket = aws_s3_bucket.tf1000_webcontent.id
-  policy = data.aws_iam_policy_document.tf1000_allow_readget_access_cloudfront_to_s3.json
+resource "aws_s3_bucket_policy" "dp1000_allow_readget_access_cloudfront_to_s3" {
+  bucket = aws_s3_bucket.dp1000_webcontent.id
+  policy = data.aws_iam_policy_document.dp1000_allow_readget_access_cloudfront_to_s3.json
 
 }
 
 # add static website hosting settings to the tf_static_site bucket
 
-resource "aws_s3_bucket_website_configuration" "tf1000_webcontent" {
-  bucket = aws_s3_bucket.tf1000_webcontent.id
+resource "aws_s3_bucket_website_configuration" "dp1000_webcontent" {
+  bucket = aws_s3_bucket.dp1000_webcontent.id
 
   index_document {
     suffix = "index.html"
@@ -74,8 +74,8 @@ resource "aws_s3_bucket_website_configuration" "tf1000_webcontent" {
 
 ####---- rold and policy 1 ----####
 
-resource "aws_iam_policy" "tf1000_pipeline_policy" {
-  name        = "tf1000_pipeline_policy"
+resource "aws_iam_policy" "dp1000_pipeline_policy" {
+  name        = "dp1000_pipeline_policy"
   description = "Policy used in trust relationship with CodePipeline github to s3"
 
   policy = jsonencode({
@@ -252,12 +252,12 @@ resource "aws_iam_policy" "tf1000_pipeline_policy" {
     ],
   })
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
-resource "aws_iam_role" "tf1000_pipeline_role" {
-  name = "tf1000_pipeline_role"
+resource "aws_iam_role" "dp1000_pipeline_role" {
+  name = "dp1000_pipeline_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -272,22 +272,22 @@ resource "aws_iam_role" "tf1000_pipeline_role" {
     ],
   })
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
-resource "aws_iam_policy_attachment" "tf1000_pipeline_attachment" {
-  name       = "tf1000_pipeline_attachment"
-  policy_arn = aws_iam_policy.tf1000_pipeline_policy.arn
-  roles      = [aws_iam_role.tf1000_pipeline_role.name]
+resource "aws_iam_policy_attachment" "dp1000_pipeline_attachment" {
+  name       = "dp1000_pipeline_attachment"
+  policy_arn = aws_iam_policy.dp1000_pipeline_policy.arn
+  roles      = [aws_iam_role.dp1000_pipeline_role.name]
 
 }
 
 
 ####---- rold and policy 2 ----####
 
-resource "aws_iam_policy" "tf1000_lambda1_policy" {
-  name        = "tf1000_lambda1_policy"
+resource "aws_iam_policy" "dp1000_lambda1_policy" {
+  name        = "dp1000_lambda1_policy"
   description = "Policy for Lambda function to interact with CodePipeline, CloudFront, and CloudWatch Logs"
 
   policy = jsonencode({
@@ -307,7 +307,7 @@ resource "aws_iam_policy" "tf1000_lambda1_policy" {
           "cloudfront:GetInvalidation",
           "cloudfront:ListInvalidations"
         ],
-        Resource = "${aws_cloudfront_distribution.tf1000_cf_distribution.arn}"
+        Resource = "${aws_cloudfront_distribution.dp1000_cf_distribution.arn}"
       },
       {
         Effect = "Allow",
@@ -322,8 +322,8 @@ resource "aws_iam_policy" "tf1000_lambda1_policy" {
   })
 }
 
-resource "aws_iam_role" "tf1000_lambda1_role" {
-  name = "tf1000_lambda1_role"
+resource "aws_iam_role" "dp1000_lambda1_role" {
+  name = "dp1000_lambda1_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -337,14 +337,14 @@ resource "aws_iam_role" "tf1000_lambda1_role" {
     ]
   })
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
-resource "aws_iam_policy_attachment" "tf1000_lambda1_attachment" {
+resource "aws_iam_policy_attachment" "dp1000_lambda1_attachment" {
   name       = "example-attachment"
-  policy_arn = aws_iam_policy.tf1000_lambda1_policy.arn
-  roles      = [aws_iam_role.tf1000_lambda1_role.name]
+  policy_arn = aws_iam_policy.dp1000_lambda1_policy.arn
+  roles      = [aws_iam_role.dp1000_lambda1_role.name]
 }
 
 ####---- GitHub codestar connections ----####
@@ -353,7 +353,7 @@ resource "aws_codestarconnections_connection" "OmerMeister_GitHub" {
   name          = "OmerMeister_GitHub"
   provider_type = "GitHub"
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 # then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=eu-central-1 to one time manually approve the connection
@@ -361,14 +361,14 @@ resource "aws_codestarconnections_connection" "OmerMeister_GitHub" {
 
 ####---- lambda1 function ----####
 
-resource "aws_lambda_function" "tf1000_lambda1" {
-  function_name = "tf1000_lambda1"
-  handler       = "tf1000_lambda1.lambda_handler"
+resource "aws_lambda_function" "dp1000_lambda1" {
+  function_name = "dp1000_lambda1"
+  handler       = "dp1000_lambda1.lambda_handler"
   runtime       = "python3.11"
-  role          = aws_iam_role.tf1000_lambda1_role.arn
+  role          = aws_iam_role.dp1000_lambda1_role.arn
   timeout       = 6
   memory_size   = 128
-  filename      = data.archive_file.tf1000_python_code.output_path
+  filename      = data.archive_file.dp1000_python_code.output_path
   lifecycle {
     ignore_changes = [filename]
   }
@@ -377,27 +377,27 @@ resource "aws_lambda_function" "tf1000_lambda1" {
   }
   environment {
     variables = {
-      DISTRIBUTION = aws_cloudfront_distribution.tf1000_cf_distribution.id
+      DISTRIBUTION = aws_cloudfront_distribution.dp1000_cf_distribution.id
     }
   }
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
 # specify lambda source file location. leave zip location as is
-data "archive_file" "tf1000_python_code" {
+data "archive_file" "dp1000_python_code" {
   type        = "zip"
-  output_path = "${path.module}/tf1000_lambda1.zip"
+  output_path = "${path.module}/dp1000_lambda1.zip"
   source {
-    content  = file("${path.module}/auxiliary/tf1000_lambda1.py")
-    filename = "tf1000_lambda1.py"
+    content  = file("${path.module}/auxiliary/dp1000_lambda1.py")
+    filename = "dp1000_lambda1.py"
   }
 }
 
 ####---- cloudfront origin access control ----####
 
-resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
+resource "aws_cloudfront_origin_access_control" "dp1000_oac" {
   name                              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
   description                       = "OAC_sign_request"
   signing_protocol                  = "sigv4"
@@ -407,11 +407,11 @@ resource "aws_cloudfront_origin_access_control" "tf1000_oac" {
 
 ####---- cloudfront distribution ----####
 
-resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
+resource "aws_cloudfront_distribution" "dp1000_cf_distribution" {
   origin {
     domain_name              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
     origin_id                = "${var.project_domain_name}.s3-website.eu-central-1.amazonaws.com"
-    origin_access_control_id = aws_cloudfront_origin_access_control.tf1000_oac.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.dp1000_oac.id
   }
 
   enabled             = true
@@ -465,18 +465,18 @@ resource "aws_cloudfront_distribution" "tf1000_cf_distribution" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }
 
 ####---- CodePipeline ----####
 
-resource "aws_codepipeline" "tf1000_codepipeline" {
-  name     = "tf1000_codepipeline"
-  role_arn = aws_iam_role.tf1000_pipeline_role.arn
+resource "aws_codepipeline" "dp1000_codepipeline" {
+  name     = "dp1000_codepipeline"
+  role_arn = aws_iam_role.dp1000_pipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.tf1000_codepipelineartifact.bucket
+    location = aws_s3_bucket.dp1000_codepipelineartifact.bucket
     type     = "S3"
   }
 
@@ -494,7 +494,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
       configuration = {
         BranchName           = "main"
         ConnectionArn        = aws_codestarconnections_connection.OmerMeister_GitHub.arn
-        FullRepositoryId     = "OmerMeister/tf1000-webcontent"
+        FullRepositoryId     = "OmerMeister/dp1000-webcontent"
         OutputArtifactFormat = "CODE_ZIP"
       }
 
@@ -517,7 +517,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
 
 
       configuration = {
-        BucketName = aws_s3_bucket.tf1000_webcontent.bucket
+        BucketName = aws_s3_bucket.dp1000_webcontent.bucket
         Extract    = "true"
       }
 
@@ -541,7 +541,7 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
 
 
       configuration = {
-        FunctionName = aws_lambda_function.tf1000_lambda1.function_name
+        FunctionName = aws_lambda_function.dp1000_lambda1.function_name
       }
 
       run_order = 1
@@ -550,6 +550,6 @@ resource "aws_codepipeline" "tf1000_codepipeline" {
   }
 
   tags = {
-    Project = "tf1000"
+    Project = "dp1000"
   }
 }

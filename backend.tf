@@ -5,7 +5,7 @@ terraform {
     organization = "OmerMeister"
 
     workspaces {
-      name = "tf1000"
+      name = "dp1000"
     }
   }
 }
