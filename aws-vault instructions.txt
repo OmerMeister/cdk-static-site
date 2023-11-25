@@ -1,0 +1,6 @@
+in this project i used "aws-vault" to relatively safely execure tf apply with my aws credentials.
+full info here: https://github.com/99designs/aws-vault/blob/master/USAGE.md
+commands:
+aws-vault list = Listing profiles and credentials
+aws-vault remove = Removing credentials
+aws-vault exec tf -- terraform apply = execute command with the aws creds (in my case "tf" is the profile name)
