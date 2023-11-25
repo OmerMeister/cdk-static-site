@@ -58,7 +58,7 @@ On the variables file there are:<br />
 **project_domain_name** - unifies 10 appearances of the project domain in the main.tf file<br />
 <br />On the Terraform cloud there are:<br />
 **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** - to access the aws account.<br />
-**AWS_DEFAULT_REGION** - to set region, i worked on 'eu-central-1' when possible.<br />
+**AWS_DEFAULT_REGION** - to set region, i worked on 'us-east-1' when possible.<br />
 <br />Tags:<br />
 **Project = dp1000** - 'dp' for 'DevOps Project' and '1000' for the first project in a four digit convention. This tag is attached whenever is possible. It groups all resources which are belong solely to this project
 

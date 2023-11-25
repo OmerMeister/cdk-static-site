@@ -12,5 +12,5 @@ variable "meister_lol_certificate_us_east_1" {
 # cloudfront uses it in various places
 variable "project_domain_name" {
   type    = string
-  default = "dp1000.meister.lol"
+  default = "meister.lol"
 }

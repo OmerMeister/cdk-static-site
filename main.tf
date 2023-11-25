@@ -356,7 +356,7 @@ resource "aws_codestarconnections_connection" "OmerMeister_GitHub" {
     Project = "dp1000"
   }
 }
-# then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=eu-central-1 to one time manually approve the connection
+# then, go to https://eu-north-1.console.aws.amazon.com/codesuite/settings/connections?region=us-east-1 to one time manually approve the connection
 
 
 ####---- lambda1 function ----####
@@ -398,7 +398,7 @@ data "archive_file" "dp1000_python_code" {
 ####---- cloudfront origin access control ----####
 
 resource "aws_cloudfront_origin_access_control" "dp1000_oac" {
-  name                              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
+  name                              = "${var.project_domain_name}.s3.us-east-1.amazonaws.com"
   description                       = "OAC_sign_request"
   signing_protocol                  = "sigv4"
   signing_behavior                  = "always"
@@ -409,8 +409,8 @@ resource "aws_cloudfront_origin_access_control" "dp1000_oac" {
 
 resource "aws_cloudfront_distribution" "dp1000_cf_distribution" {
   origin {
-    domain_name              = "${var.project_domain_name}.s3.eu-central-1.amazonaws.com"
-    origin_id                = "${var.project_domain_name}.s3-website.eu-central-1.amazonaws.com"
+    domain_name              = "${var.project_domain_name}.s3.us-east-1.amazonaws.com"
+    origin_id                = "${var.project_domain_name}.s3-website.us-east-1.amazonaws.com"
     origin_access_control_id = aws_cloudfront_origin_access_control.dp1000_oac.id
   }
 
@@ -423,7 +423,7 @@ resource "aws_cloudfront_distribution" "dp1000_cf_distribution" {
   aliases = ["${var.project_domain_name}"]
 
   default_cache_behavior {
-    target_origin_id       = "${var.project_domain_name}.s3-website.eu-central-1.amazonaws.com"
+    target_origin_id       = "${var.project_domain_name}.s3-website.us-east-1.amazonaws.com"
     viewer_protocol_policy = "redirect-to-https"
 
     allowed_methods = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
@@ -499,7 +499,7 @@ resource "aws_codepipeline" "dp1000_codepipeline" {
       }
 
       run_order = 1
-      region    = "eu-central-1"
+      region    = "us-east-1"
     }
   }
 
@@ -522,7 +522,7 @@ resource "aws_codepipeline" "dp1000_codepipeline" {
       }
 
       run_order = 1
-      region    = "eu-central-1"
+      region    = "us-east-1"
       namespace = "DeployVariables"
     }
   }
@@ -545,7 +545,7 @@ resource "aws_codepipeline" "dp1000_codepipeline" {
       }
 
       run_order = 1
-      region    = "eu-central-1"
+      region    = "us-east-1"
     }
   }
 

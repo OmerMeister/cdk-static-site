@@ -1,0 +1,8 @@
+Attantion
+
+the providers themself are not included in the folder in order to make the project small.
+first "terraform apply" will require download of all the providers.
+about 6 providers, 420mb approx.
+
+Omer Meister
+19/11/2023
