@@ -553,3 +553,17 @@ resource "aws_codepipeline" "dp1000_codepipeline" {
     Project = "dp1000"
   }
 }
+
+####---- Route 53 A record ----####
+
+resource "aws_route53_record" "dp1000_domain_association" {
+  zone_id = var.route53_zone_id
+  name    = "meister.lol."
+  type    = "A"
+
+  alias {
+    name                   = aws_codepipeline.dp1000_codepipeline.domain_name
+    zone_id                = aws_codepipeline.dp1000_codepipeline.domain_name.zone_id
+    evaluate_target_health = true
+  }
+}
