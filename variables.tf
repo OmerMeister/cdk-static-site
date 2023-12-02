@@ -14,3 +14,9 @@ variable "project_domain_name" {
   type    = string
   default = "meister.lol"
 }
+
+variable "route53_zone_id" {
+  type    = string
+  default = "Z0348476221EWBX8SN5OZ"
+}
+

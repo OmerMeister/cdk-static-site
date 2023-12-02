@@ -553,3 +553,17 @@ resource "aws_codepipeline" "dp1000_codepipeline" {
     Project = "dp1000"
   }
 }
+
+####---- Route 53 A record ----####
+
+resource "aws_route53_record" "dp1000_domain_association" {
+  zone_id = var.route53_zone_id
+  name    = var.project_domain_name
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.dp1000_cf_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.dp1000_cf_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
