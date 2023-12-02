@@ -564,6 +564,6 @@ resource "aws_route53_record" "dp1000_domain_association" {
   alias {
     name                   = aws_cloudfront_distribution.dp1000_cf_distribution.domain_name
     zone_id                = aws_cloudfront_distribution.dp1000_cf_distribution.hosted_zone_id
-    evaluate_target_health = true
+    evaluate_target_health = false
   }
 }
