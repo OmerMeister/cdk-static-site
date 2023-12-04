@@ -52,10 +52,14 @@ CodeStar Connections:<br />
 CodePiplines:<br />
 **dp1000_codepipeline** - The pipeline has three steps: 1 - gets triggered by a commit on a specific GitHub repository, then download the commit content to a temporary zip. 2 - extracts the zip contents to the S3 bucket. 3 - calls the lambda function to create a distribution invalidation. the invalidation makes cloudfront update its site content.
 
+Route53 record:<br />
+**dp1000_domain_association** - Updates the route53 dns record for "meister.lol" to point to the CloudFront distribution url.
+
 ## Variables and Tages
 On the variables file there are:<br />
 **meister_lol_certificate_us_east_1** - my global certificate for various projects. cloudfront demands a certificate from 'us-east-1' region.<br />
-**project_domain_name** - unifies 10 appearances of the project domain in the main.tf file<br />
+**project_domain_name** - unifies 11 appearances of the project domain in the main.tf file<br />
+**route53_zone_id** - the hosted zone id for the external domain.<br />
 <br />On the Terraform cloud there are:<br />
 **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY** - to access the aws account.<br />
 **AWS_DEFAULT_REGION** - to set region, i worked on 'us-east-1' when possible.<br />
